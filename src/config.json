@@ -1,0 +1,8 @@
+{
+    "input_size": 7,
+    "output_size": 2,
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "epochs": 50,
+    "batch_size": 32
+}
