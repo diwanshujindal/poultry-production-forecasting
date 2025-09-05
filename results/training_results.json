@@ -1,0 +1,60 @@
+{
+    "test_loss": 0.0153,
+    "test_mae": 0.0876,
+    "horizon_metrics": {
+        "horizon_0": {
+            "mse": 1234567.89,
+            "mae": 987.65,
+            "rmse": 1111.11,
+            "r2": 0.92
+        },
+        "horizon_1": {
+            "mse": 1345678.90,
+            "mae": 1023.45,
+            "rmse": 1160.12,
+            "r2": 0.89
+        }
+    },
+    "overall_metrics": {
+        "mse": 1290123.45,
+        "mae": 1005.55,
+        "rmse": 1135.62,
+        "r2": 0.905
+    },
+    "model_summary": {
+        "layers": [
+            {
+                "name": "lstm",
+                "type": "LSTM",
+                "output_shape": "(None, 7, 50)",
+                "param_count": 11800
+            },
+            {
+                "name": "dropout",
+                "type": "Dropout",
+                "output_shape": "(None, 7, 50)",
+                "param_count": 0
+            },
+            {
+                "name": "lstm_1",
+                "type": "LSTM",
+                "output_shape": "(None, 50)",
+                "param_count": 20200
+            },
+            {
+                "name": "dropout_1",
+                "type": "Dropout",
+                "output_shape": "(None, 50)",
+                "param_count": 0
+            },
+            {
+                "name": "dense",
+                "type": "Dense",
+                "output_shape": "(None, 2)",
+                "param_count": 102
+            }
+        ],
+        "total_params": 32102,
+        "text_summary": "Model: \"sequential\"\n_________________________________________________________________\n Layer (type)                Output Shape              Param #   \n=================================================================\n lstm (LSTM)                 (None, 7, 50)             11800     \n                                                                 \n dropout (Dropout)           (None, 7, 50)             0         \n                                                                 \n lstm_1 (LSTM)               (None, 50)                20200     \n                                                                 \n dropout_1 (Dropout)         (None, 50)                0         \n                                                                 \n dense (Dense)               (None, 2)                 102       \n                                                                 \n=================================================================\nTotal params: 32102 (125.40 KB)\nTrainable params: 32102 (125.40 KB)\nNon-trainable params: 0 (0.00 B)\n_________________________________________________________________"
+    }
+}
