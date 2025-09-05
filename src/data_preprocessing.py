@@ -5,6 +5,7 @@ Data loading and preprocessing functions
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 def load_data(file_path):
     """
@@ -67,6 +68,9 @@ def preprocess_data(df):
     df_commodity = df_canada[df_canada['Commodity'] == 'All poultry meat, total']
     df_processed = df_commodity[['REF_DATE', 'VALUE']].set_index('REF_DATE')
     
+    # Handle remaining missing values
+    df_processed = df_processed.dropna()
+    
     # Extract datetime features
     df_processed = extract_datetime_features(df_processed)
     
@@ -127,3 +131,52 @@ def create_window_sequences(df, target_column, input_size=7, output_size=2):
         y.append(y_window)
     
     return np.array(X), np.array(y)
+
+def prepare_time_series_data(df, target_column, input_size=7, output_size=2, train_ratio=0.7, val_ratio=0.15):
+    """
+    Prepare time series data for modeling
+    
+    Parameters:
+    df (pandas.DataFrame): Processed data
+    target_column (str): Name of target column
+    input_size (int): Size of input window
+    output_size (int): Size of output horizon
+    train_ratio (float): Proportion of data for training
+    val_ratio (float): Proportion of data for validation
+    
+    Returns:
+    tuple: (X_train, X_val, X_test, y_train, y_val, y_test, scaler_x, scaler_y)
+    """
+    # Create sequences
+    X, y = create_window_sequences(df, target_column, input_size, output_size)
+    
+    # Split data
+    train_idx = int(len(X) * train_ratio)
+    val_idx = int(len(X) * (train_ratio + val_ratio))
+    
+    X_train, X_val, X_test = X[:train_idx], X[train_idx:val_idx], X[val_idx:]
+    y_train, y_val, y_test = y[:train_idx], y[train_idx:val_idx], y[val_idx:]
+    
+    # Scale features
+    scaler_x = MinMaxScaler()
+    X_train_reshaped = X_train.reshape(-1, X_train.shape[-1])
+    scaler_x.fit(X_train_reshaped)
+    
+    X_train_scaled = scaler_x.transform(X_train_reshaped).reshape(X_train.shape)
+    X_val_scaled = scaler_x.transform(X_val.reshape(-1, X_val.shape[-1])).reshape(X_val.shape)
+    X_test_scaled = scaler_x.transform(X_test.reshape(-1, X_test.shape[-1])).reshape(X_test.shape)
+    
+    # Scale targets
+    scaler_y = MinMaxScaler()
+    y_train_reshaped = y_train.reshape(-1, 1)
+    scaler_y.fit(y_train_reshaped)
+    
+    y_train_scaled = scaler_y.transform(y_train_reshaped).reshape(y_train.shape)
+    y_val_scaled = scaler_y.transform(y_val.reshape(-1, 1)).reshape(y_val.shape)
+    y_test_scaled = scaler_y.transform(y_test.reshape(-1, 1)).reshape(y_test.shape)
+    
+    print(f"Training set: X={X_train_scaled.shape}, y={y_train_scaled.shape}")
+    print(f"Validation set: X={X_val_scaled.shape}, y={y_val_scaled.shape}")
+    print(f"Test set: X={X_test_scaled.shape}, y={y_test_scaled.shape}")
+    
+    return X_train_scaled, X_val_scaled, X_test_scaled, y_train_scaled, y_val_scaled, y_test_scaled, scaler_x, scaler_y
